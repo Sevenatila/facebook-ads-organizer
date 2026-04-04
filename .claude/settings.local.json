@@ -6,7 +6,14 @@
       "Bash(git config user.name \"Renato Stelar\")",
       "Bash(git config user.email \"sevenatila@gmail.com\")",
       "Bash(git remote add origin https://github.com/Sevenatila/facebook-ads-organizer.git)",
-      "Bash(git add .)"
+      "Bash(git add .)",
+      "Bash(git commit -m \"$(cat <<''EOF''\n🎉 Initial commit - Facebook Ads Organizer\n\n✨ Sistema completo de organização de contas pagas do Facebook Ads\n\n📦 Features:\n- Dashboard moderno com tema escuro\n- API REST completa (Node.js + Express + MySQL)\n- Migração automática do localStorage\n- Parser inteligente de texto do Facebook\n- Export CSV e filtros avançados\n- Deploy automatizado com PM2\n\n🚀 Pronto para produção na VPS Hostinger\n\n🤖 Generated with Claude Code (https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git push -u origin master)",
+      "Bash(npm install)",
+      "Bash(node test-local.js)",
+      "Bash(git add DEPLOY-VPS.md)",
+      "Bash(git commit -m \"$(cat <<''EOF''\n📋 Add complete VPS deployment guide\n\n✨ Features:\n- Step-by-step deployment instructions\n- Automated setup scripts\n- MySQL configuration\n- Nginx reverse proxy setup\n- Security best practices\n- Troubleshooting guide\n\n🚀 Ready for Hostinger VPS deployment\n\n🤖 Generated with Claude Code (https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git push origin master)"
     ],
     "deny": [],
     "ask": []

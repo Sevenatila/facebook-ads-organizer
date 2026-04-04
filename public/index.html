@@ -49,7 +49,9 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
 }
 .brand-name { font-size: 14px; font-weight: 600; letter-spacing: -0.3px; }
 .brand-desc { font-size: 11px; color: var(--muted2); font-family: var(--mono); margin-top: 1px; }
-.hdr-right { display: flex; gap: 8px; }
+.hdr-right { display: flex; gap: 8px; align-items: center; }
+.user-info { font-size: 12px; color: var(--muted2); font-family: var(--mono); }
+.user-email { color: var(--text); }
 
 /* ── Buttons ── */
 .btn {
@@ -270,8 +272,12 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
     </div>
   </div>
   <div class="hdr-right">
+    <span id="userInfo" class="user-info" style="display: none;">
+      <span class="user-email"></span>
+    </span>
     <button class="btn btn-ghost btn-sm" onclick="exportCSV()">↓ CSV</button>
     <button class="btn btn-primary btn-sm" onclick="openModal()">+ Adicionar</button>
+    <button class="btn btn-ghost btn-sm" onclick="logout()">Sair</button>
   </div>
 </div>
 
@@ -347,6 +353,7 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
 const API_BASE = '/api';
 let records = [];
 let isLoading = false;
+let currentUser = null;
 
 // ─── Month map (full + abbrev PT) ────────────────────────
 const MO = {
@@ -378,9 +385,12 @@ function uid() { return Date.now().toString(36) + Math.random().toString(36).sli
 // ─── API Functions ───────────────────────────────────────
 async function apiRequest(endpoint, options = {}) {
   const url = `${API_BASE}${endpoint}`;
+  const token = localStorage.getItem('authToken');
+
   const config = {
     headers: {
       'Content-Type': 'application/json',
+      ...(token && { 'Authorization': `Bearer ${token}` }),
       ...options.headers
     },
     ...options
@@ -395,6 +405,13 @@ async function apiRequest(endpoint, options = {}) {
     const data = await response.json();
 
     if (!response.ok) {
+      if (response.status === 401) {
+        // Token expirado ou inválido
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('user');
+        window.location.href = '/login.html';
+        return;
+      }
       throw new Error(data.message || 'Erro na requisição');
     }
 
@@ -880,9 +897,64 @@ function exportCSV() {
   a.click();
 }
 
+// ─── Authentication Functions ────────────────────────────
+async function checkAuth() {
+  const token = localStorage.getItem('authToken');
+
+  if (!token) {
+    window.location.href = '/login.html';
+    return false;
+  }
+
+  try {
+    const response = await apiRequest('/auth/me');
+    if (response.success) {
+      currentUser = response.user;
+      updateUserInfo();
+      return true;
+    }
+  } catch (error) {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
+    window.location.href = '/login.html';
+    return false;
+  }
+
+  return false;
+}
+
+function updateUserInfo() {
+  if (currentUser) {
+    const userInfo = document.getElementById('userInfo');
+    const userEmail = userInfo.querySelector('.user-email');
+
+    userEmail.textContent = currentUser.email;
+    userInfo.style.display = 'inline';
+  }
+}
+
+async function logout() {
+  try {
+    await apiRequest('/auth/logout', { method: 'POST' });
+  } catch (error) {
+    console.error('Erro no logout:', error);
+  } finally {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
+    window.location.href = '/login.html';
+  }
+}
+
 // ─── Inicialização do App ────────────────────────────────
 async function initApp() {
   try {
+    // Verificar autenticação primeiro
+    const isAuthenticated = await checkAuth();
+
+    if (!isAuthenticated) {
+      return;
+    }
+
     // Tentar migração de localStorage primeiro
     await migrateFromLocalStorage();
 

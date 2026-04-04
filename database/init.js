@@ -20,6 +20,20 @@ async function initDatabase() {
         // Usar o banco
         await connection.execute(`USE ${process.env.DB_NAME}`);
 
+        // Criar tabela de usuários
+        await connection.execute(`
+            CREATE TABLE IF NOT EXISTS usuarios (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                email VARCHAR(255) NOT NULL UNIQUE,
+                nome VARCHAR(255) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                INDEX idx_email (email)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        `);
+
+        console.log('Tabela de usuários criada/verificada');
+
         // Criar tabela de pagamentos
         await connection.execute(`
             CREATE TABLE IF NOT EXISTS pagamentos (

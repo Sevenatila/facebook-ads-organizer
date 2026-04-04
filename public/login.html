@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login — Facebook Ads Organizer</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0b0d11;
+  --surface: #13151c;
+  --surface2: #1a1d27;
+  --border: rgba(255,255,255,0.06);
+  --border2: rgba(255,255,255,0.11);
+  --text: #e8e9ef;
+  --muted: #5a6070;
+  --muted2: #8891a0;
+  --accent: #3ddc84;
+  --accent-dim: rgba(61,220,132,0.10);
+  --accent-border: rgba(61,220,132,0.20);
+  --red: #f07070;
+  --font: 'Syne', sans-serif;
+  --mono: 'DM Mono', monospace;
+  --r: 10px;
+  --rlg: 14px;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.login-container {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--rlg);
+  padding: 40px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.brand-dot {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--accent-dim);
+  border: 1px solid var(--accent-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  margin-bottom: 16px;
+}
+
+.brand-name {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+  margin-bottom: 4px;
+}
+
+.brand-desc {
+  font-size: 12px;
+  color: var(--muted2);
+  font-family: var(--mono);
+}
+
+.form-group {
+  margin-bottom: 24px;
+}
+
+.form-label {
+  display: block;
+  font-size: 12px;
+  font-family: var(--mono);
+  color: var(--muted2);
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  margin-bottom: 8px;
+}
+
+.form-input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 14px;
+  padding: 12px 16px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.form-input:focus {
+  border-color: var(--accent-border);
+}
+
+.btn {
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 12px 24px;
+  transition: all 0.15s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #051a0d;
+}
+
+.btn-primary:hover {
+  filter: brightness(1.1);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.error-message {
+  background: rgba(240, 112, 112, 0.1);
+  border: 1px solid rgba(240, 112, 112, 0.2);
+  border-radius: 6px;
+  color: var(--red);
+  font-size: 12px;
+  font-family: var(--mono);
+  padding: 8px 12px;
+  margin-top: 8px;
+  display: none;
+}
+
+.success-message {
+  background: var(--accent-dim);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  color: var(--accent);
+  font-size: 12px;
+  font-family: var(--mono);
+  padding: 8px 12px;
+  margin-top: 8px;
+  display: none;
+}
+
+.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+.footer-text {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 11px;
+  color: var(--muted);
+  font-family: var(--mono);
+}
+
+@media (max-width: 480px) {
+  .login-container {
+    padding: 24px;
+  }
+
+  .brand-name {
+    font-size: 16px;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="login-container">
+  <div class="brand">
+    <div class="brand-dot">✅</div>
+    <div class="brand-name">Facebook Ads Organizer</div>
+    <div class="brand-desc">Acesso ao dashboard</div>
+  </div>
+
+  <form id="loginForm">
+    <div class="form-group">
+      <label class="form-label" for="email">Seu email</label>
+      <input
+        type="email"
+        id="email"
+        class="form-input"
+        placeholder="seu@email.com"
+        required
+        autocomplete="email"
+      >
+    </div>
+
+    <button type="submit" class="btn btn-primary" id="loginBtn">
+      <span id="loginText">Acessar Dashboard</span>
+      <span id="loginSpinner" class="spinner" style="display: none;">⟳</span>
+    </button>
+
+    <div id="errorMessage" class="error-message"></div>
+    <div id="successMessage" class="success-message"></div>
+  </form>
+
+  <div class="footer-text">
+    Sistema de organização de contas pagas do Facebook Ads
+  </div>
+</div>
+
+<script>
+const API_BASE = '/api';
+let isLoading = false;
+
+// Verificar se já está logado
+async function checkAuth() {
+  const token = localStorage.getItem('authToken');
+  if (token) {
+    try {
+      const response = await fetch(`${API_BASE}/auth/me`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        // Já está logado, redirecionar
+        window.location.href = '/';
+        return;
+      }
+    } catch (error) {
+      // Token inválido, continuar na tela de login
+    }
+  }
+}
+
+// Fazer login
+async function login(email) {
+  try {
+    const response = await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      // Salvar token
+      localStorage.setItem('authToken', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+
+      // Mostrar sucesso
+      showSuccess('Login realizado com sucesso! Redirecionando...');
+
+      // Redirecionar após 1 segundo
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 1000);
+
+    } else {
+      showError(data.message || 'Erro no login');
+    }
+
+  } catch (error) {
+    console.error('Erro no login:', error);
+    showError('Erro de conexão. Tente novamente.');
+  }
+}
+
+// Mostrar erro
+function showError(message) {
+  const errorEl = document.getElementById('errorMessage');
+  const successEl = document.getElementById('successMessage');
+
+  successEl.style.display = 'none';
+  errorEl.textContent = message;
+  errorEl.style.display = 'block';
+}
+
+// Mostrar sucesso
+function showSuccess(message) {
+  const errorEl = document.getElementById('errorMessage');
+  const successEl = document.getElementById('successMessage');
+
+  errorEl.style.display = 'none';
+  successEl.textContent = message;
+  successEl.style.display = 'block';
+}
+
+// Limpar mensagens
+function clearMessages() {
+  document.getElementById('errorMessage').style.display = 'none';
+  document.getElementById('successMessage').style.display = 'none';
+}
+
+// Toggle loading state
+function setLoading(loading) {
+  isLoading = loading;
+  const form = document.getElementById('loginForm');
+  const btn = document.getElementById('loginBtn');
+  const text = document.getElementById('loginText');
+  const spinner = document.getElementById('loginSpinner');
+
+  if (loading) {
+    form.classList.add('loading');
+    btn.disabled = true;
+    text.style.display = 'none';
+    spinner.style.display = 'inline';
+  } else {
+    form.classList.remove('loading');
+    btn.disabled = false;
+    text.style.display = 'inline';
+    spinner.style.display = 'none';
+  }
+}
+
+// Event listeners
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  if (isLoading) return;
+
+  clearMessages();
+
+  const email = document.getElementById('email').value.trim();
+
+  if (!email) {
+    showError('Email é obrigatório');
+    return;
+  }
+
+  if (!email.includes('@')) {
+    showError('Digite um email válido');
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    await login(email);
+  } finally {
+    setLoading(false);
+  }
+});
+
+// Auto-focus no campo email
+document.getElementById('email').focus();
+
+// Verificar autenticação ao carregar
+checkAuth();
+</script>
+
+</body>
+</html>
