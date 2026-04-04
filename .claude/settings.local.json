@@ -13,7 +13,8 @@
       "Bash(node test-local.js)",
       "Bash(git add DEPLOY-VPS.md)",
       "Bash(git commit -m \"$(cat <<''EOF''\n📋 Add complete VPS deployment guide\n\n✨ Features:\n- Step-by-step deployment instructions\n- Automated setup scripts\n- MySQL configuration\n- Nginx reverse proxy setup\n- Security best practices\n- Troubleshooting guide\n\n🚀 Ready for Hostinger VPS deployment\n\n🤖 Generated with Claude Code (https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
-      "Bash(git push origin master)"
+      "Bash(git push origin master)",
+      "Bash(git commit -m \"$(cat <<''EOF''\n🔐 Add complete login system with email authentication\n\n✨ Features:\n- Beautiful login screen with dark theme\n- Email-only authentication (no password required)\n- JWT token-based session management\n- Auto-redirect to login when not authenticated\n- User info display in header with logout\n- Database table for users management\n- Session persistence and token validation\n- Seed data script with sample Facebook Ads data\n\n🗄️ Database updates:\n- New usuarios table for authentication\n- Enhanced init script with user management\n- Seed script with real Facebook Ads data (Magazzi accounts)\n\n🎨 UI/UX improvements:\n- Responsive login form with loading states\n- User email display in header\n- Logout functionality\n- Seamless authentication flow\n\n🔧 Backend enhancements:\n- Auth routes (/api/auth/login, /api/auth/logout, /api/auth/me)\n- Auth middleware for API protection\n- JWT token generation and validation\n- Session management with express-session\n- Optional auth middleware for backward compatibility\n\n🤖 Generated with Claude Code (https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
     ],
     "deny": [],
     "ask": []

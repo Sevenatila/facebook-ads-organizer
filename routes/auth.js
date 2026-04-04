@@ -3,6 +3,12 @@ const jwt = require('jsonwebtoken');
 const router = express.Router();
 const Usuario = require('../models/Usuario');
 
+// Emails autorizados
+const EMAILS_AUTORIZADOS = [
+    'vini@code.com',
+    'renato@code.com'
+];
+
 // Login com email
 router.post('/login', async (req, res) => {
     try {
@@ -12,6 +18,14 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({
                 success: false,
                 message: 'Email válido é obrigatório'
+            });
+        }
+
+        // Verificar se o email está autorizado
+        if (!EMAILS_AUTORIZADOS.includes(email.toLowerCase())) {
+            return res.status(403).json({
+                success: false,
+                message: 'Email não autorizado para acesso ao sistema'
             });
         }
 
