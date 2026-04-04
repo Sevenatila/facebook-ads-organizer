@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(chmod +x deploy.sh install-vps.sh)",
+      "Bash(git init)",
+      "Bash(git config user.name \"Renato Stelar\")",
+      "Bash(git config user.email \"sevenatila@gmail.com\")",
+      "Bash(git remote add origin https://github.com/Sevenatila/facebook-ads-organizer.git)",
+      "Bash(git add .)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
