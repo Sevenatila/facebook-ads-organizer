@@ -64,7 +64,8 @@ async function seedData() {
         contaId,
         date,
         dk: dateKey(date),
-        valor: parseFloat(valor)
+        valor: parseFloat(valor),
+        dataMySQL: dateKey(date) // Usar a versão convertida para MySQL
     }));
 
     try {
