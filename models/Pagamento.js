@@ -66,7 +66,7 @@ class Pagamento {
                 pag.bm,
                 pag.contaNome,
                 pag.contaId || null,
-                this.converterDataParaMySQL(pag.date),
+                Pagamento.converterDataParaMySQL(pag.date),
                 pag.dk,
                 pag.valor
             ];
@@ -89,7 +89,7 @@ class Pagamento {
             dadosAtualizados.bm,
             dadosAtualizados.contaNome,
             dadosAtualizados.contaId || null,
-            this.converterDataParaMySQL(dadosAtualizados.date),
+            Pagamento.converterDataParaMySQL(dadosAtualizados.date),
             dadosAtualizados.dk,
             dadosAtualizados.valor,
             id
