@@ -19,7 +19,17 @@
       "Bash(git commit -m \"$(cat <<''EOF''\n🔧 Fix date conversion bug in Pagamento model\n\n🐛 Bug fix:\n- Fixed static method call in date conversion\n- Changed this.converterDataParaMySQL to Pagamento.converterDataParaMySQL\n- Resolves MySQL date format error during seed data insertion\n\n📊 Database compatibility:\n- Ensures proper MySQL DATE format (YYYY-MM-DD)\n- Fixes seed script execution\n- Prevents ER_TRUNCATED_WRONG_VALUE errors\n\n🤖 Generated with Claude Code (https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(git commit -m \"Add quick-seed script with correct MySQL date format\")",
       "Bash(git commit -m \"🔒 Remove email hints from login form for security\n\n🛡️ Security improvement:\n- Removed specific email addresses from placeholder\n- Changed label to generic ''Email de acesso''  \n- Updated error message to be less revealing\n- Maintains authorization but hides valid emails\n\n🎨 UI changes:\n- Placeholder now shows ''seu@email.com''\n- Error message: ''Email não autorizado para acesso ao sistema''\n- Cleaner, more secure login interface\n\n🤖 Generated with Claude Code (https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\")",
-      "Bash(git commit -m \"Update login placeholder comments\")"
+      "Bash(git commit -m \"Update login placeholder comments\")",
+      "Bash(wc -l \"facebook-ads-organizer (3).html\")",
+      "Bash(node database/migration-v2.js)",
+      "Bash(node database/init.js)",
+      "Bash(node test-local-v2.js)",
+      "Bash(curl -s \"http://localhost:3001/api/health\")",
+      "Bash(curl -s \"http://localhost:3001/api/pagamentos\")",
+      "Bash(curl -s \"http://localhost:3001/api/google-ads\")",
+      "Bash(curl -s \"http://localhost:3001/api/socios\")",
+      "Bash(chmod +x deploy-v2.sh)",
+      "Bash(git add .claude/settings.local.json)"
     ],
     "deny": [],
     "ask": []
