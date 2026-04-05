@@ -50,6 +50,8 @@ const { authOpcional } = require('./middleware/auth');
 // Rotas da API
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/pagamentos', authOpcional, require('./routes/pagamentos'));
+app.use('/api/google-ads', authOpcional, require('./routes/google-ads'));
+app.use('/api/socios', authOpcional, require('./routes/socios'));
 
 // Rota para migração de dados do localStorage
 app.post('/api/migrate', async (req, res) => {
