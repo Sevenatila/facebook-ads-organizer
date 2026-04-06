@@ -750,7 +750,7 @@ const KEY = 'fbads_v8';
 
 // ─── Data model: flat payment records ────────────────────
 // { id, bm, contaNome, contaId, date, dateKey, valor }
-let records = JSON.parse(localStorage.getItem(KEY) || 'null');
+let records = [];
 
 // ─── Month map (full + abbrev PT) ────────────────────────
 const MO = {
@@ -778,7 +778,17 @@ function fmtBRL(v) {
 
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
 
-function persist() { localStorage.setItem(KEY, JSON.stringify(records)); }
+function persist() { /* migrado para API */ }
+
+async function carregarDados() {
+  try {
+    const res = await fetch('/api/pagamentos');
+    const json = await res.json();
+    if (json.success) records = json.data;
+  } catch(e) {
+    console.error('Erro ao carregar dados Meta:', e);
+  }
+}
 
 // ─── Seed data ───────────────────────────────────────────
 function seedData() {
@@ -829,7 +839,7 @@ function seedData() {
   }));
 }
 
-if (!records) { records = seedData(); persist(); }
+// dados carregados via API em showApp()
 
 // ─── Parse paste ─────────────────────────────────────────
 function parsePaste() {
@@ -908,7 +918,7 @@ function openModal(ids) {
 }
 function closeModal() { document.getElementById('ov').classList.remove('open'); }
 
-function saveModal() {
+async function saveModal() {
   const bm = document.getElementById('fBM').value.trim();
   const contaNome = document.getElementById('fConta').value.trim();
   const contaId = document.getElementById('fID').value.trim();
@@ -926,17 +936,43 @@ function saveModal() {
 
   if (!newRecs.length) { alert('Adicione ao menos uma data e valor.'); return; }
 
-  if (editIds.length) {
-    records = records.filter(r => !editIds.includes(r.id));
+  try {
+    if (editIds.length) {
+      await fetch('/api/pagamentos', {
+        method: 'DELETE',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ ids: editIds })
+      });
+    }
+    const res = await fetch('/api/pagamentos', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ pagamentos: newRecs })
+    });
+    const json = await res.json();
+    if (!json.success) { alert('Erro ao salvar: ' + (json.message||'tente novamente')); return; }
+    await carregarDados();
+    closeModal(); populateDropdowns(); render(); renderVisaoGeral();
+  } catch(e) {
+    alert('Erro de conexão. Verifique o servidor.');
   }
-  records.push(...newRecs);
-  persist(); closeModal(); populateDropdowns(); render();
 }
 
-function deleteRecords(ids) {
+async function deleteRecords(ids) {
   if (!confirm(`Remover ${ids.length} cobrança${ids.length>1?'s':''}?`)) return;
-  records = records.filter(r => !ids.includes(r.id));
-  persist(); populateDropdowns(); render();
+  try {
+    const res = await fetch('/api/pagamentos', {
+      method: 'DELETE',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ ids })
+    });
+    const json = await res.json();
+    if (!json.success) { alert('Erro ao deletar: ' + (json.message||'tente novamente')); return; }
+    await carregarDados();
+    populateDropdowns(); render(); renderVisaoGeral();
+  } catch(e) {
+    alert('Erro de conexão. Verifique o servidor.');
+  }
 }
 
 // ─── Populate dropdowns ──────────────────────────────────
@@ -1215,10 +1251,11 @@ function doLogout() {
   document.getElementById('loginEmail').value = '';
 }
 
-function showApp(email) {
+async function showApp(email) {
   document.getElementById('loginScreen').classList.remove('show');
   document.getElementById('appWrap').style.display = 'block';
   document.getElementById('headerEmail').textContent = email;
+  await Promise.all([carregarDados(), carregarGDados()]);
   populateDropdowns();
   render();
   populateGDropdowns();
@@ -1701,8 +1738,18 @@ function renderAC() {
 
 // ─── Google Ads data ──────────────────────────────────────
 const GKEY = 'gads_v1';
-let grecords = JSON.parse(localStorage.getItem(GKEY) || '[]');
-function gpersist() { localStorage.setItem(GKEY, JSON.stringify(grecords)); }
+let grecords = [];
+function gpersist() { /* migrado para API */ }
+
+async function carregarGDados() {
+  try {
+    const res = await fetch('/api/google-ads');
+    const json = await res.json();
+    if (json.success) grecords = json.data;
+  } catch(e) {
+    console.error('Erro ao carregar dados Google Ads:', e);
+  }
+}
 
 // ─── Google chip state ────────────────────────────────────
 let gActiveChip = 'all';
@@ -1757,7 +1804,7 @@ function addGValRow(date='', valor='', receita='') {
     + '<button class="btn btn-xs btn-ghost" onclick="document.getElementById(\'gvr-' + id + '\').remove()" style="color:var(--red)">✕</button>';
   document.getElementById('gValRows').appendChild(div);
 }
-function saveGModal() {
+async function saveGModal() {
   const contaNome = document.getElementById('gfConta').value.trim();
   const contaId   = document.getElementById('gfID').value.trim();
   if (!contaNome) { alert('Preencha o nome da conta.'); return; }
@@ -1770,13 +1817,35 @@ function saveGModal() {
     receita: parseBRL(row.querySelector('.vr-rec').value) || 0,
   })).filter(r => r.date && r.valor);
   if (!newRecs.length) { alert('Adicione ao menos uma data e valor.'); return; }
-  grecords.push(...newRecs);
-  gpersist(); closeGModal(); populateGDropdowns(); renderGoogle();
+  try {
+    const res = await fetch('/api/google-ads', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ campanhas: newRecs })
+    });
+    const json = await res.json();
+    if (!json.success) { alert('Erro ao salvar: ' + (json.message||'tente novamente')); return; }
+    await carregarGDados();
+    closeGModal(); populateGDropdowns(); renderGoogle(); renderVisaoGeral();
+  } catch(e) {
+    alert('Erro de conexão. Verifique o servidor.');
+  }
 }
-function deleteGRecord(id) {
+async function deleteGRecord(id) {
   if (!confirm('Remover?')) return;
-  grecords = grecords.filter(r => r.id !== id);
-  gpersist(); populateGDropdowns(); renderGoogle();
+  try {
+    const res = await fetch('/api/google-ads', {
+      method: 'DELETE',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ ids: [id] })
+    });
+    const json = await res.json();
+    if (!json.success) { alert('Erro ao deletar: ' + (json.message||'tente novamente')); return; }
+    await carregarGDados();
+    populateGDropdowns(); renderGoogle(); renderVisaoGeral();
+  } catch(e) {
+    alert('Erro de conexão. Verifique o servidor.');
+  }
 }
 
 // ─── Google render ────────────────────────────────────────
