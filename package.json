@@ -9,7 +9,8 @@
     "init-db": "node database/init.js",
     "migrate-v2": "node database/migration-v2.js",
     "seed": "node database/seed-data.js",
-    "quick-seed": "node database/quick-seed.js"
+    "quick-seed": "node database/quick-seed.js",
+    "migrate-custos": "node database/migration-custos.js"
   },
   "keywords": ["facebook-ads", "dashboard", "pagamentos"],
   "author": "Renato Stelar",

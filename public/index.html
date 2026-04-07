@@ -489,6 +489,9 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
   <button class="tab-btn" id="tab-ac" onclick="switchTab('ac')">
     ❄️ Operação Ar Condicionado
   </button>
+  <button class="tab-btn" id="tab-custos" onclick="switchTab('custos')">
+    💼 Custos Operacionais
+  </button>
 </div>
 
 <!-- META ADS PAGE -->
@@ -626,6 +629,33 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
 </div>
 </div><!-- /page-ac -->
 
+<!-- CUSTOS OPERACIONAIS PAGE -->
+<div class="tab-page" id="page-custos">
+<div class="main">
+
+  <!-- Summary cards -->
+  <div class="sum-grid" id="custosSumGrid" style="margin-bottom:18px;"></div>
+
+  <!-- Filter bar -->
+  <div class="filter-bar">
+    <span class="filter-bar-label">Categoria</span>
+    <div class="filter-chips">
+      <span class="chip active" onclick="setCustoChip('all',this)">Todas</span>
+      <span class="chip" onclick="setCustoChip('codigo',this)">Código</span>
+      <span class="chip" onclick="setCustoChip('info_card',this)">Info/Card</span>
+      <span class="chip" onclick="setCustoChip('ferramenta',this)">Ferramentas</span>
+    </div>
+  </div>
+
+  <div style="display:flex;justify-content:flex-end;margin-bottom:14px;">
+    <button class="btn btn-primary btn-sm" onclick="openCustosModal()">+ Novo Custo</button>
+  </div>
+
+  <div id="custosBody"></div>
+
+</div>
+</div><!-- /page-custos -->
+
 </div><!-- /appWrap -->
 
 <!-- Modal -->
@@ -740,6 +770,43 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
     <div class="modal-foot">
       <button class="btn btn-ghost" onclick="closeSocioModal()">Cancelar</button>
       <button class="btn btn-primary" onclick="saveSocio()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Custos Operacionais Modal -->
+<div class="overlay" id="custosModal" onclick="if(event.target===this)closeCustosModal()">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-title" id="custosModalTitle">Novo Custo Operacional</div>
+    <div class="fgrid">
+      <div class="field full">
+        <label>Categoria</label>
+        <select id="custosCategoria" style="font-family:var(--font);font-size:13px;background:var(--surface2);color:var(--text);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;width:100%;outline:none;">
+          <option value="codigo">Custo com Código</option>
+          <option value="info_card">Custo Info/Card</option>
+          <option value="ferramenta">Ferramentas</option>
+        </select>
+      </div>
+      <div class="field full">
+        <label>Descrição</label>
+        <input id="custosDescricao" placeholder="Ex: AdSpy mensal, Cartão Nomad, Conta BM...">
+      </div>
+      <div class="field">
+        <label>Valor (R$)</label>
+        <input id="custosValor" placeholder="0,00" type="number" step="0.01" min="0.01">
+      </div>
+      <div class="field">
+        <label>Data</label>
+        <input id="custosData" type="date">
+      </div>
+      <div class="field full">
+        <label>Observação (opcional)</label>
+        <input id="custosObs" placeholder="Detalhes adicionais...">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeCustosModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveCusto()">Salvar</button>
     </div>
   </div>
 </div>
@@ -1202,7 +1269,7 @@ function render() {
     : '';
   html += '<div class="grand-total-bar">'
     + '<div>'
-      + '<div class="sum-lbl" style="margin-bottom:4px">Resultado geral — todas as contas</div>'
+      + '<div class="sum-lbl" style="margin-bottom:4px">Valor pago para o Facebook — todas as contas</div>'
       + '<div style="font-size:12px;color:var(--muted2);font-family:var(--mono)">' + dayList.length + ' dias · ' + filtered.length + ' cobranças</div>'
     + '</div>'
     + '<div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap">'
@@ -1340,12 +1407,11 @@ function renderVisaoGeral() {
   grandLucro = grandFat + grandReceita - grandCusto;
 
   const sumGrid = document.getElementById('vgSumGrid');
-  const lucroColor = grandLucro >= 0 ? 'var(--accent)' : 'var(--red)';
   sumGrid.innerHTML =
     '<div class="sum-card"><div class="sum-lbl">💰 Faturamento AC</div><div class="sum-val b">' + fmtBRL(grandFat) + '</div><div class="sum-sub">Ape Max + Abmax</div></div>'
     + '<div class="sum-card"><div class="sum-lbl">📥 Receita Ads</div><div class="sum-val b">' + fmtBRL(grandReceita) + '</div><div class="sum-sub">Meta + Google</div></div>'
     + '<div class="sum-card"><div class="sum-lbl">💸 Total de Custos</div><div class="sum-val" style="color:var(--warning)">' + fmtBRL(grandCusto) + '</div><div class="sum-sub">anúncios + operacional</div></div>'
-    + '<div class="sum-card"><div class="sum-lbl">📈 Resultado geral</div><div class="sum-val" style="color:' + lucroColor + '">' + fmtBRL(grandLucro) + '</div><div class="sum-sub">todos os dias</div></div>';
+    + '<div class="sum-card"><div class="sum-lbl">💳 Valor pago para o Facebook</div><div class="sum-val g">' + fmtBRL(grandCusto) + '</div><div class="sum-sub">todos os dias</div></div>';
 
   if (!days.length) {
     document.getElementById('vgBody').innerHTML = '<div class="empty">Nenhum dado ainda. Adicione registros nas abas acima.</div>';
@@ -2006,6 +2072,215 @@ if (savedUser && ALLOWED.includes(savedUser)) {
 } else {
   document.getElementById('loginScreen').classList.add('show');
 }
+
+// ═══════════════════════════════════════════════════════════
+// CUSTOS OPERACIONAIS
+// ═══════════════════════════════════════════════════════════
+let custosData = [];
+let custoFiltroCategoria = 'all';
+let custosEditingId = null;
+
+const CUSTO_LABELS = {
+  codigo: 'Custo com Código',
+  info_card: 'Custo Info/Card',
+  ferramenta: 'Ferramentas'
+};
+
+const CUSTO_COLORS = {
+  codigo: { bg: 'var(--blue-dim)', border: 'var(--blue-border)', text: 'var(--blue)' },
+  info_card: { bg: 'var(--yellow-dim)', border: 'rgba(245,197,66,.2)', text: 'var(--yellow)' },
+  ferramenta: { bg: 'var(--accent-dim)', border: 'var(--accent-border)', text: 'var(--accent)' }
+};
+
+async function loadCustos() {
+  try {
+    const token = localStorage.getItem('fbads_token');
+    const params = custoFiltroCategoria !== 'all' ? `?categoria=${custoFiltroCategoria}` : '';
+    const resp = await fetch(`/api/custos${params}`, {
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+    });
+    const json = await resp.json();
+    if (json.success) {
+      custosData = json.data;
+      renderCustos();
+    }
+  } catch (e) {
+    console.error('Erro ao carregar custos:', e);
+  }
+}
+
+function setCustoChip(cat, el) {
+  document.querySelectorAll('#page-custos .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  custoFiltroCategoria = cat;
+  loadCustos();
+}
+
+function renderCustos() {
+  renderCustosSummary();
+  renderCustosBody();
+}
+
+function renderCustosSummary() {
+  const grid = document.getElementById('custosSumGrid');
+  if (!grid) return;
+
+  const total = custosData.reduce((s, c) => s + c.valor, 0);
+  const porCat = { codigo: 0, info_card: 0, ferramenta: 0 };
+  custosData.forEach(c => { if (porCat[c.categoria] !== undefined) porCat[c.categoria] += c.valor; });
+
+  grid.innerHTML =
+    `<div class="sum-card"><div class="sum-lbl">Total Geral</div><div class="sum-val y">${fmtBRL(total)}</div><div class="sum-sub">${custosData.length} lançamento(s)</div></div>` +
+    `<div class="sum-card"><div class="sum-lbl">Custo com Código</div><div class="sum-val b">${fmtBRL(porCat.codigo)}</div></div>` +
+    `<div class="sum-card"><div class="sum-lbl">Info/Card</div><div class="sum-val y">${fmtBRL(porCat.info_card)}</div></div>` +
+    `<div class="sum-card"><div class="sum-lbl">Ferramentas</div><div class="sum-val g">${fmtBRL(porCat.ferramenta)}</div></div>`;
+}
+
+function renderCustosBody() {
+  const body = document.getElementById('custosBody');
+  if (!body) return;
+
+  if (custosData.length === 0) {
+    body.innerHTML = `<div style="text-align:center;padding:40px;color:var(--muted2);font-family:var(--mono);font-size:13px;">Nenhum custo registrado.</div>`;
+    return;
+  }
+
+  const rows = custosData.map(c => {
+    const cor = CUSTO_COLORS[c.categoria] || CUSTO_COLORS.ferramenta;
+    const dataFmt = c.data ? new Date(c.data + 'T00:00:00').toLocaleDateString('pt-BR') : '—';
+    return `<tr>
+      <td style="padding:10px 14px;">
+        <span style="background:${cor.bg};border:1px solid ${cor.border};color:${cor.text};font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.6px;padding:3px 8px;border-radius:5px;">
+          ${CUSTO_LABELS[c.categoria] || c.categoria}
+        </span>
+      </td>
+      <td style="padding:10px 14px;font-size:13px;">${c.descricao}</td>
+      <td style="padding:10px 14px;font-family:var(--mono);font-weight:600;color:var(--red);">${fmtBRL(c.valor)}</td>
+      <td style="padding:10px 14px;font-family:var(--mono);font-size:12px;color:var(--muted2);">${dataFmt}</td>
+      <td style="padding:10px 14px;font-size:12px;color:var(--muted2);">${c.observacao || '—'}</td>
+      <td style="padding:10px 14px;">
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-ghost btn-xs" onclick="editCusto(${c.id})" title="Editar">✏️</button>
+          <button class="btn btn-ghost btn-xs" onclick="deleteCusto(${c.id})" title="Excluir" style="color:var(--red)">🗑</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  body.innerHTML = `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--rlg);overflow:hidden;">
+      <table style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr style="border-bottom:1px solid var(--border2);">
+            <th style="padding:10px 14px;text-align:left;font-size:10px;font-family:var(--mono);color:var(--muted2);text-transform:uppercase;letter-spacing:.7px;font-weight:500;">Categoria</th>
+            <th style="padding:10px 14px;text-align:left;font-size:10px;font-family:var(--mono);color:var(--muted2);text-transform:uppercase;letter-spacing:.7px;font-weight:500;">Descrição</th>
+            <th style="padding:10px 14px;text-align:left;font-size:10px;font-family:var(--mono);color:var(--muted2);text-transform:uppercase;letter-spacing:.7px;font-weight:500;">Valor</th>
+            <th style="padding:10px 14px;text-align:left;font-size:10px;font-family:var(--mono);color:var(--muted2);text-transform:uppercase;letter-spacing:.7px;font-weight:500;">Data</th>
+            <th style="padding:10px 14px;text-align:left;font-size:10px;font-family:var(--mono);color:var(--muted2);text-transform:uppercase;letter-spacing:.7px;font-weight:500;">Obs</th>
+            <th style="padding:10px 14px;"></th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+function openCustosModal(id) {
+  custosEditingId = id || null;
+  document.getElementById('custosModalTitle').textContent = id ? 'Editar Custo' : 'Novo Custo Operacional';
+
+  if (id) {
+    const c = custosData.find(x => x.id === id);
+    if (c) {
+      document.getElementById('custosCategoria').value = c.categoria;
+      document.getElementById('custosDescricao').value = c.descricao;
+      document.getElementById('custosValor').value = c.valor;
+      document.getElementById('custosData').value = c.data ? c.data.substring(0, 10) : '';
+      document.getElementById('custosObs').value = c.observacao || '';
+    }
+  } else {
+    document.getElementById('custosCategoria').value = 'codigo';
+    document.getElementById('custosDescricao').value = '';
+    document.getElementById('custosValor').value = '';
+    document.getElementById('custosData').value = new Date().toISOString().substring(0, 10);
+    document.getElementById('custosObs').value = '';
+  }
+
+  document.getElementById('custosModal').classList.add('open');
+}
+
+function closeCustosModal() {
+  document.getElementById('custosModal').classList.remove('open');
+  custosEditingId = null;
+}
+
+async function saveCusto() {
+  const categoria = document.getElementById('custosCategoria').value;
+  const descricao = document.getElementById('custosDescricao').value.trim();
+  const valor = parseFloat(document.getElementById('custosValor').value);
+  const data = document.getElementById('custosData').value;
+  const observacao = document.getElementById('custosObs').value.trim();
+
+  if (!descricao) { alert('Descrição é obrigatória'); return; }
+  if (!valor || valor <= 0) { alert('Informe um valor válido'); return; }
+  if (!data) { alert('Data é obrigatória'); return; }
+
+  try {
+    const token = localStorage.getItem('fbads_token');
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const url = custosEditingId ? `/api/custos/${custosEditingId}` : '/api/custos';
+    const method = custosEditingId ? 'PUT' : 'POST';
+
+    const resp = await fetch(url, {
+      method,
+      headers,
+      body: JSON.stringify({ categoria, descricao, valor, data, observacao })
+    });
+
+    const json = await resp.json();
+    if (json.success) {
+      closeCustosModal();
+      loadCustos();
+    } else {
+      alert(json.message || 'Erro ao salvar custo');
+    }
+  } catch (e) {
+    console.error('Erro ao salvar custo:', e);
+    alert('Erro ao salvar custo');
+  }
+}
+
+function editCusto(id) {
+  openCustosModal(id);
+}
+
+async function deleteCusto(id) {
+  if (!confirm('Excluir este custo?')) return;
+  try {
+    const token = localStorage.getItem('fbads_token');
+    const headers = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const resp = await fetch(`/api/custos/${id}`, { method: 'DELETE', headers });
+    const json = await resp.json();
+    if (json.success) {
+      loadCustos();
+    } else {
+      alert(json.message || 'Erro ao excluir');
+    }
+  } catch (e) {
+    console.error('Erro ao excluir custo:', e);
+  }
+}
+
+// Carregar custos quando a aba for aberta
+const _origSwitchTab = switchTab;
+switchTab = function(tab) {
+  _origSwitchTab(tab);
+  if (tab === 'custos') loadCustos();
+};
 </script>
 </body>
 </html>
