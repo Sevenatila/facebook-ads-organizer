@@ -1404,6 +1404,8 @@ function renderVisaoGeral() {
     grandReceita  += metaReceita + gReceita;
     grandFat      += acFat;
   });
+  const grandCustosOp = custosData.reduce((s,c) => s + c.valor, 0);
+  grandCusto += grandCustosOp;
   grandLucro = grandFat + grandReceita - grandCusto;
 
   const sumGrid = document.getElementById('vgSumGrid');
@@ -1411,6 +1413,7 @@ function renderVisaoGeral() {
     '<div class="sum-card"><div class="sum-lbl">💰 Faturamento AC</div><div class="sum-val b">' + fmtBRL(grandFat) + '</div><div class="sum-sub">Ape Max + Abmax</div></div>'
     + '<div class="sum-card"><div class="sum-lbl">📥 Receita Ads</div><div class="sum-val b">' + fmtBRL(grandReceita) + '</div><div class="sum-sub">Meta + Google</div></div>'
     + '<div class="sum-card"><div class="sum-lbl">💸 Total de Custos</div><div class="sum-val" style="color:var(--warning)">' + fmtBRL(grandCusto) + '</div><div class="sum-sub">anúncios + operacional</div></div>'
+    + '<div class="sum-card"><div class="sum-lbl">💼 Custos Operacionais</div><div class="sum-val" style="color:var(--red)">' + fmtBRL(grandCustosOp) + '</div><div class="sum-sub">código · card · ferramentas</div></div>'
     + '<div class="sum-card"><div class="sum-lbl">💳 Valor pago para o Facebook</div><div class="sum-val g">' + fmtBRL(grandCusto) + '</div><div class="sum-sub">todos os dias</div></div>';
 
   if (!days.length) {
@@ -2092,7 +2095,7 @@ const CUSTO_COLORS = {
   ferramenta: { bg: 'var(--accent-dim)', border: 'var(--accent-border)', text: 'var(--accent)' }
 };
 
-async function loadCustos() {
+async function loadCustos(reRenderVisao = false) {
   try {
     const token = localStorage.getItem('fbads_token');
     const params = custoFiltroCategoria !== 'all' ? `?categoria=${custoFiltroCategoria}` : '';
@@ -2103,6 +2106,7 @@ async function loadCustos() {
     if (json.success) {
       custosData = json.data;
       renderCustos();
+      if (reRenderVisao) renderVisaoGeral();
     }
   } catch (e) {
     console.error('Erro ao carregar custos:', e);
@@ -2280,6 +2284,7 @@ const _origSwitchTab = switchTab;
 switchTab = function(tab) {
   _origSwitchTab(tab);
   if (tab === 'custos') loadCustos();
+  if (tab === 'visao') loadCustos(true);
 };
 </script>
 </body>
